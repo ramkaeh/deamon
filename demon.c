@@ -21,6 +21,27 @@ void logMessage(const char *message) {
     openlog("SyncDaemon", LOG_PID | LOG_CONS | LOG_NOWAIT, LOG_USER);
     syslog(LOG_INFO, "%s", message);
     closelog();
+
+    FILE *logFile = fopen(LOG_FILE,"a");
+    if(logFile == NULL){
+        perror("Error: Could not open log file");
+        exit(EXIT_FAILURE);
+    }
+        // Pobranie aktualnej daty i czasu
+    time_t currentTime;
+    struct tm *localTime;
+    time(&currentTime);
+    localTime = localtime(&currentTime);
+
+    // Zapisanie komunikatu i daty do pliku logu
+    fprintf(logFile, "[%04d-%02d-%02d %02d:%02d:%02d] %s\n",
+            localTime->tm_year + 1900, localTime->tm_mon + 1, localTime->tm_mday,
+            localTime->tm_hour, localTime->tm_min, localTime->tm_sec, message);
+
+    // Zamknięcie pliku logu
+    fclose(logFile);
+
+    
 }
 
 void copyFile(const char *sourcePath, const char *destPath, off_t fileSize, int mmapThreshold) {
@@ -197,6 +218,7 @@ int main(int argc, char *argv[]) {
     if (pid != 0) {
         // Parent process exits
         exit(EXIT_SUCCESS);
+        
     }
 
     // Create new session and detach from controlling terminal

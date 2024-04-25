@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
 
     // Main daemon logic: sleep for specified time, then synchronize directories
     while (1) {
-        sleep(sleepTime);
+        sleep(10);
         synchronizeDirectories(argv[1], argv[2], recursive, mmapThreshold);
         logMessage("Directories synchronized");
     }

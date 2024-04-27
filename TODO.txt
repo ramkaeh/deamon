@@ -1,6 +1,12 @@
-1. naprawic syncdaemon.log
-2. dodac opisy do logow
+1. logi chyba dzilaja (sprawdzic)
+2. jest wiekszosc opisow logow (sprawdzic)
 3. naprawic kopiowanie
-4. sprawdzic czy kopiuje pojednycze pliki czy cae drzewo
-5. zmienic wszystkie operacje na plkach na Api linuxa (open ,close ,read,write)
-6. dodac usuwanie i modyfikacje
+4. sprawdzic czy kopiuje pojednycze pliki czy cae drzewo (chyba kopiuje pojedyncze pliki sprawdzic)
+5. zmienic wszystkie operacje na plkach na Api linuxa (open ,close ,read,write) jak na razie jest git
+6. dodac usuwanie (modyfikacja dziala,a usuwanie nie)
+7.sprawdzic i dokonczyc rekurencje
+8.sprawdzic parsowanie
+9.sprawdzic czy dzila mmap dla duzych plikow
+10.yolo commit i push
+11.sprawdzic shell systemowy bo jakos malo mam linijek inni sie miescili w od 1000 do 2000 a ja mam niecale 300
+

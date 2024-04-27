@@ -3,7 +3,7 @@ all: SyncDaemon
 
 SyncDaemon: $(OBJ)
 	gcc $(OBJ) -o SyncDaemon
-$(obj): util.h
+$(OBJ): util.h
 .PHONY: clean
 clean:
 	rm -f *.o SyncDaemon

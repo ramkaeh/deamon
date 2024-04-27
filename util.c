@@ -21,24 +21,6 @@ void logMessage(const char *message) {
     syslog(LOG_INFO, "%s", message);
     closelog();
 
-    FILE *logFile = fopen(LOG_FILE,"a");
-    if(logFile == NULL){
-        perror("Error: Could not open log file");
-        exit(EXIT_FAILURE);
-    }
-        // Pobranie aktualnej daty i czasu
-    time_t currentTime;
-    struct tm *localTime;
-    time(&currentTime);
-    localTime = localtime(&currentTime);
-
-    // Zapisanie komunikatu i daty do pliku logu
-    fprintf(logFile, "[%04d-%02d-%02d %02d:%02d:%02d] %s\n",
-            localTime->tm_year + 1900, localTime->tm_mon + 1, localTime->tm_mday,
-            localTime->tm_hour, localTime->tm_min, localTime->tm_sec, message);
-
-    // Zamknięcie pliku logu
-    fclose(logFile);
 
     
 }
@@ -151,11 +133,11 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
                     continue;
                 }
 
-                if (difftime(statbuf.st_mtime, destStatbuf.st_mtime) > 0) {
+                if (access(destPath, F_OK) == -1 || difftime(statbuf.st_mtime, destStatbuf.st_mtime) > 0 ){
                     // Source file is newer, copy it to destination
                     copyFile(sourcePath, destPath, statbuf.st_size, mmapThreshold);
                     logMessage("Copied file from source to destination");
-                } else if (difftime(destStatbuf.st_mtime, statbuf.st_mtime) > 0) {
+                } else if (access(destPath, F_OK) == -1 || difftime(statbuf.st_mtime, destStatbuf.st_mtime) > 0) {
                     // Destination file is newer, remove it
                     if (remove(destPath) == 0) {
                         logMessage("Removed file from destination");
@@ -175,3 +157,5 @@ void handleSignal(int signal) {
         logMessage("Received SIGUSR1 signal, waking up daemon");
     }
 }
+
+

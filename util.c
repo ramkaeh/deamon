@@ -88,14 +88,14 @@ void copyFile(const char *sourcePath, const char *destPath, off_t fileSize, int 
 
 void synchronizeDirectories(const char *source, const char *dest, int recursive, int mmapThreshold) {
     // Open source directory
-    DIR *dir = opendir(source);
-    if (dir == NULL) {
+    DIR *srcdir = opendir(source);
+    if (srcdir == NULL) {
         perror("Error opening source directory");
         return;
     }
 
     struct dirent *entry;
-    while ((entry = readdir(dir)) != NULL) {
+    while ((entry = readdir(srcdir)) != NULL) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
             continue; // Skip current and parent directory entries
         }
@@ -115,6 +115,7 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
         if (S_ISDIR(statbuf.st_mode)) {
             // Recursively synchronize directories if recursive option is enabled
             if (recursive) {
+                logMessage("Recursive synchronization");
                 synchronizeDirectories(sourcePath, destPath, recursive, mmapThreshold);
             }
         } else if (S_ISREG(statbuf.st_mode)) {
@@ -148,8 +149,41 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
             }
         }
     }
+    closedir(srcdir);
 
-    closedir(dir);
+    // Open destination directory
+    DIR *destdir = opendir(dest);
+    if (destdir == NULL) {
+        perror("Error opening destination directory");
+        return;
+    }
+
+    struct dirent *dentry;
+    while ((dentry = readdir(destdir)) != NULL) {
+        if (strcmp(dentry->d_name, ".") == 0 || strcmp(dentry->d_name, "..") == 0) {
+            continue; // Skip current and parent directory entries
+        }
+
+        // Construct full path for destination file
+        char destPath[PATH_MAX];
+        snprintf(destPath, PATH_MAX, "%s/%s", dest, dentry->d_name);
+
+        // Check if the file exists in the source directory
+        char sourcePath[PATH_MAX];
+        snprintf(sourcePath, PATH_MAX, "%s/%s", source, dentry->d_name);
+        
+        if (access(sourcePath, F_OK) == -1) {
+            // File does not exist in source directory, remove it from destination
+            if (remove(destPath) == 0) {
+                logMessage("Removed file from destination (not found in source)");
+            } else {
+                perror("Error removing file from destination");
+            }
+        }
+    }
+    
+
+    closedir(destdir);
 }
 
 void handleSignal(int signal) {

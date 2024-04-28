@@ -20,6 +20,7 @@
 
 
 int main(int argc, char *argv[]) {
+    logMessage("--SyncDaemon started--");
     // Check arguments
     if (argc < 3) {
         fprintf(stderr, "Usage: %s <source_directory> <destination_directory> [options]\n", argv[0]);
@@ -33,10 +34,13 @@ int main(int argc, char *argv[]) {
     for (int i = 3; i < argc; i++) {
         if (strcmp(argv[i], "-R") == 0) {
             recursive = 1;
+            logMessage("Option :Recursive");
         } else if (strcmp(argv[i], "-t") == 0 && i+1 < argc) {
             sleepTime = atoi(argv[++i]);
+            
         } else if (strcmp(argv[i], "-m") == 0 && i+1 < argc) {
             mmapThreshold = atoi(argv[++i]);
+            
         }
     }
 
@@ -57,20 +61,23 @@ int main(int argc, char *argv[]) {
         perror("Error forking process");
         exit(EXIT_FAILURE);
     }
+
     if (pid != 0) {
         // Parent process exits
         exit(EXIT_SUCCESS);
         
     }
-
+    logMessage("Process forked");
+    
     // Create new session and detach from controlling terminal
     if (setsid() == -1) {
         perror("Error creating new session");
         exit(EXIT_FAILURE);
     }
+    logMessage("SyncDaemon running");
 
     // Change working directory to root
-    if (chdir("/") == -1) {
+   if (chdir("/") == -1) {
         perror("Error changing working directory to root");
         exit(EXIT_FAILURE);
     }
@@ -85,7 +92,9 @@ int main(int argc, char *argv[]) {
 
     // Main daemon logic: sleep for specified time, then synchronize directories
     while (1) {
+        logMessage("Going to sleep");
         sleep(10);
+        logMessage("Waking up");
         synchronizeDirectories(argv[1], argv[2], recursive, mmapThreshold);
         logMessage("Directories synchronized");
     }

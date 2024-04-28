@@ -3,7 +3,7 @@
 3. naprawic kopiowanie
 4. sprawdzic czy kopiuje pojednycze pliki czy cae drzewo (chyba kopiuje pojedyncze pliki sprawdzic)
 5. zmienic wszystkie operacje na plkach na Api linuxa (open ,close ,read,write) jak na razie jest git
-6. dodac usuwanie (modyfikacja dziala,a usuwanie nie)
+6. dodac usuwanie (modyfikacja dziala, dziaa usuwanie
 7.sprawdzic i dokonczyc rekurencje
 8.sprawdzic parsowanie
 9.sprawdzic czy dzila mmap dla duzych plikow

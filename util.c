@@ -100,6 +100,49 @@ void copyFile(const char *sourcePath, const char *destPath, off_t fileSize, int 
 
     close(srcFile);
 }
+int removeDirectory(const char *target){
+    DIR *trgtdir = opendir(target);
+    if(trgtdir == NULL){
+        perror("Error opening target directory");
+        return -1;
+    }
+    struct dirent *entry;
+    while ((entry = readdir(trgtdir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+
+        char entryPath[PATH_MAX];
+        snprintf(entryPath, PATH_MAX, "%s/%s", target, entry->d_name);
+
+        struct stat statbuf;
+        if (stat(entryPath, &statbuf) == -1) {
+            perror("Error getting file status");
+            continue;
+        }
+
+        if (S_ISDIR(statbuf.st_mode)) {
+            // Recursively remove subdirectory
+            removeDirectory(entryPath);
+        } else if (S_ISREG(statbuf.st_mode)){
+            // Remove regular file
+            if (remove(entryPath) == -1) {
+                perror("Error removing file");
+                
+            }
+        }
+    }
+
+    closedir(trgtdir);
+
+    // Remove the directory itself
+    if (rmdir(target) == -1) {
+        perror("Error removing directory");
+        return -1;
+    }
+    return 0;
+
+}
 
 void synchronizeDirectories(const char *source, const char *dest, int recursive, int mmapThreshold) {
     // Open source directory
@@ -132,6 +175,7 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
             
             // Recursively synchronize directories if recursive option is enabled
             if (recursive) {
+                logMessage("Recursive synchronization");
                 if(access(destPath, F_OK) == -1){
                 if(mkdir(destPath, 0755) == 0){
                         logMessage("Copied directory from source");
@@ -139,10 +183,14 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
                     } else {
                         perror("Error copying directory from source");
                     }
-                logMessage("Recursive synchronization");
-                logMessage("Entering directory:");
-                logMessage(getFileName(sourcePath));
-                synchronizeDirectories(sourcePath, destPath, recursive, mmapThreshold);
+                
+                    logMessage("Entering created directory:");
+                    logMessage(getFileName(sourcePath));
+                    synchronizeDirectories(sourcePath, destPath, recursive, mmapThreshold);
+                }else {
+                    logMessage("Entering directory:");
+                    logMessage(getFileName(sourcePath));
+                    synchronizeDirectories(sourcePath, destPath, recursive, mmapThreshold);
                 }
             }
         } else if (S_ISREG(statbuf.st_mode)) {
@@ -179,6 +227,7 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
             }
         }
     }
+    
     closedir(srcdir);
 
     // Open destination directory
@@ -193,6 +242,7 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
         if (strcmp(dentry->d_name, ".") == 0 || strcmp(dentry->d_name, "..") == 0) {
             continue; // Skip current and parent directory entries
         }
+        
 
         // Construct full path for destination file
         char destPath[PATH_MAX];
@@ -211,10 +261,11 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
         }
         if (S_ISDIR(statbuf.st_mode)) {
             // Recursively synchronize directories if recursive option is enabled
+            
             if (recursive) {
                 logMessage("Recursive deletion");
                 if(access(sourcePath, F_OK) == -1){
-                    if(rmdir(destPath) == 0){
+                    if(removeDirectory(destPath) == 0){
                         logMessage("Removed directory from destination(not found in source)");
                         logMessage(getFileName(destPath));
                     } else {
@@ -223,6 +274,7 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
                 } else {
                     logMessage("Entering directory:");
                     logMessage(getFileName(destPath));
+                    
                     synchronizeDirectories(sourcePath, destPath, recursive, mmapThreshold);
                 }
                 
@@ -242,7 +294,8 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
         }
     }
     
-
+    logMessage("Exiting directory:");
+    logMessage(getFileName(dest));
     closedir(destdir);
     
 }

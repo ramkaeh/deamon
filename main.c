@@ -31,15 +31,22 @@ int main(int argc, char *argv[]) {
     int recursive = 0;
     int sleepTime = 300; // Default sleep time is 5 minutes
     int mmapThreshold = THRESHOLD_SIZE; // Default mmap threshold is 1 MB
+    char buffer[20];
     for (int i = 3; i < argc; i++) {
         if (strcmp(argv[i], "-R") == 0) {
             recursive = 1;
             logMessage("Option :Recursive");
         } else if (strcmp(argv[i], "-t") == 0 && i+1 < argc) {
             sleepTime = atoi(argv[++i]);
+            sprintf(buffer,"%d",sleepTime);
+            logMessage("Option: Sleep time:");
+            logMessage(buffer);
             
         } else if (strcmp(argv[i], "-m") == 0 && i+1 < argc) {
             mmapThreshold = atoi(argv[++i]);
+            sprintf(buffer,"%d",mmapThreshold);
+            logMessage("Option: Threshold:");
+            logMessage(buffer);
             
         }
     }
@@ -93,7 +100,7 @@ int main(int argc, char *argv[]) {
     // Main daemon logic: sleep for specified time, then synchronize directories
     while (1) {
         logMessage("Going to sleep");
-        sleep(10);
+        sleep(sleepTime);
         logMessage("Waking up");
         synchronizeDirectories(argv[1], argv[2], recursive, mmapThreshold);
         logMessage("Directories synchronized");

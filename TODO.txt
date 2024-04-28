@@ -1,8 +1,0 @@
-sprawdzic czy kopiuje pojednycze pliki czy cae drzewo (chyba kopiuje pojedyncze pliki sprawdzic)
-5. zmienic wszystkie operacje na plkach na Api linuxa (open ,close ,read,write) jak na razie jest git
-7.dokonczyc usuwanie i tworzenie katalogow wewnatrz katalogow
-8.sprawdzic parsowanie vhyba git
-9.sprawdzic czy dzila mmap dla duzych plikow
-10.yolo commit i push
-11.sprawdzic shell systemowy bo jakos malo mam linijek inni sie miescili w od 1000 do 2000 a ja mam niecale 300
-

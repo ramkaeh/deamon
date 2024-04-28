@@ -14,7 +14,7 @@
 #include "util.h"
 
 
-#define THRESHOLD_SIZE 1048576 // Próg rozmiaru pliku (1 MB)
+#define THRESHOLD_SIZE 1048576 // File treshold(1 MB)
 
 
 

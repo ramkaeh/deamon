@@ -20,10 +20,9 @@ void logMessage(const char *message) {
     openlog("SyncDaemon", LOG_PID | LOG_CONS | LOG_NOWAIT, LOG_USER);
     syslog(LOG_INFO, "%s", message);
     closelog();
-
-
-    
+ 
 }
+
 const char *getFileName(const char *sourcePath){
     const char *lastSlash = strrchr(sourcePath, '/');
     
@@ -177,6 +176,7 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
             if (recursive) {
                 logMessage("Recursive synchronization");
                 if(access(destPath, F_OK) == -1){
+                //Create new directory if it doesnt exist
                 if(mkdir(destPath, 0755) == 0){
                         logMessage("Copied directory from source");
                         logMessage(getFileName(destPath));
@@ -280,7 +280,7 @@ void synchronizeDirectories(const char *source, const char *dest, int recursive,
                 
             }
         } else if (S_ISREG(statbuf.st_mode)) {
-            // Only synchronize regular files
+            
 
                 if (access(sourcePath, F_OK) == -1) {
                 // File does not exist in source directory, remove it from destination
